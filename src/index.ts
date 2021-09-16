@@ -23,17 +23,27 @@ function collectBirthday() {
     const day = date.getDate();
     const contacts = ContactsApp.getContactsByDate(month, day, ContactsApp.Field.BIRTHDAY);
 
-    // TODO 動作確認コード → いずれ削除
-    console.log(`month: ${month}, day: ${day}`);
+    // LINEによる通知
+    let message : string = date.toString();
+    message += "\n";
     for (const contact of contacts) {
-        console.log(`full name: ${contact.getFullName()}`);
+        message += contact.getFullName
+        message += "\n";
     }
+    notifyByLine(message);
 }
 
 function reserveNotify() {
 }
 
-function notifyByLine() {
+function notifyByLine(message : string) {
+    const token : string = PropertiesService.getScriptProperties().getProperty('ACCESS_TOKEN');
+    const options : GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
+            method : 'post',
+            headers : {'Authorization' : `Bearer ${token}`},
+            payload : `message=${message}`
+    };
+    UrlFetchApp.fetch('https://notify-api.line.me/api/notify', options);
 }
 
 function registerTrigger() {
