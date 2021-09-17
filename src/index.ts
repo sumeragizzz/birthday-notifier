@@ -23,14 +23,21 @@ function collectBirthday() {
     const day = date.getDate();
     const contacts = ContactsApp.getContactsByDate(month, day, ContactsApp.Field.BIRTHDAY);
 
-    // LINEによる通知
-    let message : string = date.toString();
-    message += "\n";
-    for (const contact of contacts) {
-        message += contact.getFullName
-        message += "\n";
+    // 連絡先を取得できた場合はLINE Notifyにより通知する
+    if (contacts.length > 0) {
+        const message = createMessage(date, contacts);
+        notifyByLine(message);
     }
-    notifyByLine(message);
+}
+
+function createMessage(date : Date, contacts : GoogleAppsScript.Contacts.Contact[]) : string {
+    let message = '';
+    for (const contact of contacts) {
+        const dateField = contact.getDates(ContactsApp.Field.BIRTHDAY)[0];
+        const birthday = new Date(dateField.getYear(), dateField.getMonth().ordinal(), dateField.getDay());
+        message += `\n${contact.getFullName()} : ${Utilities.formatDate(birthday, 'JST', 'yyyy/MM/dd')}`;
+    }
+    return message;
 }
 
 function reserveNotify() {
